@@ -42,6 +42,17 @@ class BookRequest(BaseModel):
     book_description: str = Field(min_length=1, max_length=100)
     book_rating: float = Field(ge=0, le=5)
 
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "book_title": "A new book title",
+                "book_author": "Author name of the book",
+                "book_description": "Description of the book",
+                "book_rating": 4.5
+            }
+        }
+    }
+
 
 books = [
     Book(1, "Python Pro", "Rajat Roy", "Advance Python for Professional", 4.5),
