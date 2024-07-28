@@ -36,6 +36,14 @@ class Book:
         return f"'{self.title}' by {self.author} (Rating: {self.rating})"
 
 
+class BookRequest(BaseModel):
+    book_id: int = Field(gt=0)
+    book_title: str = Field(min_length=3, max_length=50)
+    book_author: str = Field(min_length=2, max_length=25)
+    book_description: str = Field(min_length=1, max_length=100)
+    book_rating: float = Field(ge=0, le=5)
+
+
 books = [
     Book(1, "Python Pro", "Rajat Roy", "Advance Python for Professional", 4.5),
     Book(2, "Java Pro", "Srinjoy Ghosh", "Advance Java for Professional", 4.5),
@@ -52,6 +60,6 @@ async def read_all_books():
 
 
 @app.post("/create_book")
-async def create_a_book(book=Body()):
-    books.append(book)
+async def create_a_book(book_request: BookRequest):
+    books.append(Book(**book_request.model_dump()))
     return "Book added successfully"
