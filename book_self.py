@@ -37,7 +37,6 @@ class Book:
 
 
 class BookRequest(BaseModel):
-    book_id: int = Field(gt=0)
     book_title: str = Field(min_length=3, max_length=50)
     book_author: str = Field(min_length=2, max_length=25)
     book_description: str = Field(min_length=1, max_length=100)
@@ -61,5 +60,6 @@ async def read_all_books():
 
 @app.post("/create_book")
 async def create_a_book(book_request: BookRequest):
-    books.append(Book(**book_request.model_dump()))
+    book_id = 1 if len(books) == 0 else books[-1].id + 1
+    books.append(Book(book_id, **book_request.model_dump()))
     return "Book added successfully"
