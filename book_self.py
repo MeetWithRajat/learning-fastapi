@@ -73,4 +73,4 @@ async def read_all_books():
 async def create_a_book(book_request: BookRequest):
     book_id = 1 if len(books) == 0 else books[-1].id + 1
     books.append(Book(book_id, **book_request.model_dump()))
-    return "Book added successfully"
+    return {"Status": "Successfully added the book", "Book": books[-1]}
