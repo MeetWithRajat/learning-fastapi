@@ -1,4 +1,5 @@
-from fastapi import Body, FastAPI
+from fastapi import FastAPI
+from pydantic import Field, BaseModel
 
 
 app = FastAPI()
