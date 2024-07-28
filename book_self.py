@@ -69,6 +69,15 @@ async def read_all_books():
     return books
 
 
+@app.get("/books/{book_id}")
+async def read_book(book_id: int):
+    for book in books:
+        if book.id == book_id:
+            return book
+    else:
+        return {"Response": "Book not available"}
+
+
 @app.post("/create_book")
 async def create_a_book(book_request: BookRequest):
     book_id = 1 if len(books) == 0 else books[-1].id + 1
