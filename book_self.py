@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import Field, BaseModel
 
 
@@ -34,6 +34,20 @@ class Book:
         Returns a readable string representation of the book object.
         """
         return f"'{self.title}' by {self.author} (Rating: {self.rating})"
+
+    def update(self, book_title: str, book_author: str, book_description: str, book_rating: float):
+        """
+        Update the attributes for the book object.
+
+        :param book_title: Title of the book
+        :param book_author: Author of the book
+        :param book_description: Description of the book
+        :param book_rating: Rating of the book
+        """
+        self.title = book_title
+        self.author = book_author
+        self.description = book_description
+        self.rating = book_rating
 
 
 class BookRequest(BaseModel):
@@ -78,8 +92,27 @@ async def read_book(book_id: int):
         return {"Response": "Book not available"}
 
 
-@app.post("/create_book")
+@app.get("/books/")
+async def read_book_by_rating(book_rating: float):
+    books_to_return = []
+    for book in books:
+        if book.rating >= book_rating:
+            books_to_return.append(book)
+    return books_to_return
+
+
+@app.post("books/create_book")
 async def create_a_book(book_request: BookRequest):
     book_id = 1 if len(books) == 0 else books[-1].id + 1
     books.append(Book(book_id, **book_request.model_dump()))
     return {"Status": "Successfully added the book", "Book": books[-1]}
+
+
+@app.put("/books/update_book")
+async def update_a_book(book_id: int, book_request: BookRequest):
+    for book in books:
+        if book.id == book_id:
+            book.update(**book_request.model_dump())
+            return {"Status": "Successfully updated the book", "Previously": previously, "Now": book}
+    else:
+        raise HTTPException(status_code=404, detail="Book not available")
