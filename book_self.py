@@ -98,8 +98,7 @@ async def read_book(book_id: int = Path(ge=1)):
     for book in books:
         if book.id == book_id:
             return book
-    else:
-        raise HTTPException(status_code=404, detail="book not available")
+    raise HTTPException(status_code=404, detail="book not found")
 
 
 @app.post("/books/create_book")
@@ -116,8 +115,7 @@ async def update_a_book(book_request: BookRequest, book_id: int = Query(ge=1)):
             previously = copy.deepcopy(book)
             book.update(**book_request.model_dump())
             return {"status": "successfully updated the book", "update": {"previously": previously, "now": book}}
-    else:
-        raise HTTPException(status_code=404, detail="book not available")
+    raise HTTPException(status_code=404, detail="book not found")
 
 
 @app.delete("/books/delete_book")
@@ -127,5 +125,4 @@ async def delete_a_book(book_id: int = Query(ge=1)):
             previously = copy.deepcopy(books[index])
             books.pop(index)
             return {"status": "successfully deleted the book", "previously": previously}
-    else:
-        raise HTTPException(status_code=404, detail="book not available")
+    raise HTTPException(status_code=404, detail="book not found")
