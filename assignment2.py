@@ -1,4 +1,6 @@
+from pydantic import Field
 from fastapi import FastAPI
+from datetime import datetime
 from book_self import Book, BookRequest
 
 
@@ -13,7 +15,7 @@ class Published(Book):
 
 
 class PublishRequest(BookRequest):
-    publish_year: int
+    publish_year: int = Field(le=datetime.now().year)
 
     model_config = {
         "json_schema_extra": {
