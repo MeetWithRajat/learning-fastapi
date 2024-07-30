@@ -1,5 +1,5 @@
 import copy
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Path, Query, HTTPException
 from pydantic import Field, BaseModel
 
 
@@ -84,17 +84,8 @@ async def read_all_books():
     return books
 
 
-@app.get("/books/{book_id}")
-async def read_book(book_id: int):
-    for book in books:
-        if book.id == book_id:
-            return book
-    else:
-        raise HTTPException(status_code=404, detail="book not available")
-
-
-@app.get("/books/")
-async def read_book_by_rating(book_rating: float):
+@app.get("/books/filer_book")
+async def read_book_by_rating(book_rating: float = Query(ge=0, le=5)):
     books_to_return = []
     for book in books:
         if book.rating >= book_rating:
@@ -102,7 +93,16 @@ async def read_book_by_rating(book_rating: float):
     return books_to_return
 
 
-@app.post("books/create_book")
+@app.get("/books/{book_id}")
+async def read_book(book_id: int = Path(ge=1)):
+    for book in books:
+        if book.id == book_id:
+            return book
+    else:
+        raise HTTPException(status_code=404, detail="book not available")
+
+
+@app.post("/books/create_book")
 async def create_a_book(book_request: BookRequest):
     book_id = 1 if len(books) == 0 else books[-1].id + 1
     books.append(Book(book_id, **book_request.model_dump()))
@@ -110,7 +110,7 @@ async def create_a_book(book_request: BookRequest):
 
 
 @app.put("/books/update_book")
-async def update_a_book(book_id: int, book_request: BookRequest):
+async def update_a_book(book_request: BookRequest, book_id: int = Query(ge=1)):
     for book in books:
         if book.id == book_id:
             previously = copy.deepcopy(book)
@@ -121,7 +121,7 @@ async def update_a_book(book_id: int, book_request: BookRequest):
 
 
 @app.delete("/books/delete_book")
-async def delete_a_book(book_id: int):
+async def delete_a_book(book_id: int = Query(ge=1)):
     for index in range(len(books)):
         if books[index].id == book_id:
             previously = copy.deepcopy(books[index])
