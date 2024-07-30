@@ -1,3 +1,4 @@
+import copy
 from fastapi import FastAPI, HTTPException
 from pydantic import Field, BaseModel
 
@@ -89,7 +90,7 @@ async def read_book(book_id: int):
         if book.id == book_id:
             return book
     else:
-        return {"Response": "Book not available"}
+        raise HTTPException(status_code=404, detail="book not available")
 
 
 @app.get("/books/")
@@ -105,14 +106,26 @@ async def read_book_by_rating(book_rating: float):
 async def create_a_book(book_request: BookRequest):
     book_id = 1 if len(books) == 0 else books[-1].id + 1
     books.append(Book(book_id, **book_request.model_dump()))
-    return {"Status": "Successfully added the book", "Book": books[-1]}
+    return {"status": "successfully added the book", "book": books[-1]}
 
 
 @app.put("/books/update_book")
 async def update_a_book(book_id: int, book_request: BookRequest):
     for book in books:
         if book.id == book_id:
+            previously = copy.deepcopy(book)
             book.update(**book_request.model_dump())
-            return {"Status": "Successfully updated the book", "Previously": previously, "Now": book}
+            return {"status": "successfully updated the book", "update": {"previously": previously, "now": book}}
     else:
-        raise HTTPException(status_code=404, detail="Book not available")
+        raise HTTPException(status_code=404, detail="book not available")
+
+
+@app.delete("/books/delete_book")
+async def delete_a_book(book_id: int):
+    for index in range(len(books)):
+        if books[index].id == book_id:
+            previously = copy.deepcopy(books[index])
+            books.pop(index)
+            return {"status": "successfully deleted the book", "previously": previously}
+    else:
+        raise HTTPException(status_code=404, detail="book not available")
